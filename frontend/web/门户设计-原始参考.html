@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脑机接口高质量数据平台 · BCI DataHub</title>
+<style>
+  :root{
+    --bg:#070d1a;
+    --bg-soft:#0b1224;
+    --card:rgba(255,255,255,.035);
+    --card-hover:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.16);
+    --text:#e6edf7;
+    --muted:#93a4bd;
+    --dim:#5d6f88;
+    --cyan:#22d3ee;
+    --blue:#38bdf8;
+    --indigo:#818cf8;
+    --green:#34d399;
+    --amber:#fbbf24;
+    --grad:linear-gradient(135deg,#22d3ee 0%,#38bdf8 48%,#818cf8 100%);
+    --radius:18px;
+    --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(1000px 620px at 12% -8%,rgba(34,211,238,.13),transparent 62%),
+      radial-gradient(880px 600px at 92% 4%,rgba(129,140,248,.13),transparent 58%),
+      radial-gradient(900px 520px at 50% 108%,rgba(56,189,248,.07),transparent 62%);
+  }
+  a{color:inherit;text-decoration:none}
+  .container{max-width:var(--max);margin:0 auto;padding:0 26px}
+
+  /* ---------- 顶部导航 ---------- */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    background:rgba(7,13,26,.72);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:var(--max);margin:0 auto;padding:0 26px;height:66px;
+    display:flex;align-items:center;gap:30px;
+  }
+  .logo{display:flex;align-items:center;gap:11px;flex:0 0 auto}
+  .logo-mark{
+    width:32px;height:32px;border-radius:10px;background:var(--grad);
+    display:grid;place-items:center;box-shadow:0 6px 20px rgba(34,211,238,.28);
+  }
+  .logo-mark svg{width:18px;height:18px}
+  .logo-text{font-weight:800;font-size:16px;letter-spacing:.2px;white-space:nowrap}
+  .logo-text small{
+    display:block;font-size:10px;font-weight:600;letter-spacing:1.6px;
+    color:var(--dim);margin-top:-3px;
+  }
+  .nav-menu{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+  .nav-menu::-webkit-scrollbar{display:none}
+  .nav-menu a{
+    font-size:14px;color:var(--muted);padding:7px 13px;border-radius:9px;
+    white-space:nowrap;transition:.2s;
+  }
+  .nav-menu a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+  .nav-menu a.active{color:var(--cyan);background:rgba(34,211,238,.11);font-weight:600}
+  .nav-actions{display:flex;gap:10px;flex:0 0 auto}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-size:14px;font-weight:600;padding:9px 20px;border-radius:10px;
+    border:1px solid transparent;cursor:pointer;transition:.22s;white-space:nowrap;
+  }
+  .btn-ghost{color:var(--muted);border-color:var(--border);background:rgba(255,255,255,.03)}
+  .btn-ghost:hover{color:var(--text);border-color:var(--border-strong);background:rgba(255,255,255,.07)}
+  .btn-primary{
+    color:#04121c;background:var(--grad);
+    box-shadow:0 8px 26px rgba(34,211,238,.28);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(34,211,238,.4)}
+  .btn-lg{font-size:15px;padding:13px 30px;border-radius:12px}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;padding:150px 0 90px;overflow:hidden}
+  .hero-grid-bg{
+    position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(56,189,248,.055) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(56,189,248,.055) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 80% 62% at 50% 32%,#000 18%,transparent 78%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 62% at 50% 32%,#000 18%,transparent 78%);
+  }
+  .hero-inner{
+    display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;
+    color:var(--cyan);letter-spacing:.4px;
+    border:1px solid rgba(34,211,238,.28);background:rgba(34,211,238,.07);
+    padding:6px 15px;border-radius:999px;margin-bottom:26px;
+  }
+  .pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);position:relative}
+  .pulse::after{
+    content:"";position:absolute;inset:-4px;border-radius:50%;
+    border:1px solid var(--cyan);animation:pulseRing 2s ease-out infinite;
+  }
+  @keyframes pulseRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2);opacity:0}}
+
+  .hero h1{
+    font-size:clamp(32px,4.4vw,52px);line-height:1.22;font-weight:800;
+    letter-spacing:-1px;
+  }
+  .hero h1 .grad{
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-lead{
+    margin-top:22px;font-size:clamp(15px,1.7vw,17px);color:var(--muted);
+    max-width:560px;line-height:1.85;
+  }
+  .hero-lead strong{color:#cbd8ea;font-weight:600}
+  .hero-cta{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px}
+  .hero-tags span{
+    font-size:12px;padding:5px 12px;border-radius:999px;color:var(--dim);
+    border:1px solid var(--border);background:rgba(255,255,255,.025);
+  }
+
+  /* Hero 右侧：数据资产面板 */
+  .panel{
+    position:relative;border-radius:22px;padding:1px;
+    background:linear-gradient(150deg,rgba(56,189,248,.42),rgba(129,140,248,.18) 42%,rgba(255,255,255,.05));
+    box-shadow:0 30px 80px rgba(2,8,20,.7);
+  }
+  .panel-inner{
+    border-radius:21px;background:linear-gradient(165deg,#0c1527,#080e1c 70%);
+    padding:26px;position:relative;overflow:hidden;
+  }
+  .panel-inner::before{
+    content:"";position:absolute;top:-60%;right:-30%;width:70%;height:180%;
+    background:radial-gradient(circle,rgba(34,211,238,.13),transparent 65%);
+    pointer-events:none;
+  }
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative}
+  .panel-head h4{font-size:13.5px;font-weight:700;letter-spacing:.6px;color:#b9c8de}
+  .live{
+    display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;
+    color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.26);
+    padding:3px 10px;border-radius:999px;
+  }
+  .live .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+  .big-num{
+    font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+    font-variant-numeric:tabular-nums;
+  }
+  .big-num small{font-size:15px;font-weight:700;letter-spacing:0;margin-left:4px}
+
+  /* 波形 */
+  .wave-box{margin:18px 0 6px;position:relative}
+  .wave-box svg{width:100%;height:66px;display:block}
+  .wave-line{
+    fill:none;stroke:url(#waveGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:1400;stroke-dashoffset:1400;
+    animation:drawWave 4.5s linear infinite;
+    filter:drop-shadow(0 0 6px rgba(34,211,238,.55));
+  }
+  @keyframes drawWave{
+    0%{stroke-dashoffset:1400}
+    55%{stroke-dashoffset:0}
+    100%{stroke-dashoffset:-1400}
+  }
+
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+  .metric{
+    background:rgba(255,255,255,.03);border:1px solid var(--border);
+    border-radius:12px;padding:12px 10px;text-align:center;
+  }
+  .metric b{display:block;font-size:18px;font-weight:800;color:#dbe7f7;font-variant-numeric:tabular-nums}
+  .metric span{font-size:11px;color:var(--dim);letter-spacing:.2px}
+
+  .mods{margin-top:20px;position:relative}
+  .mods-title{font-size:11.5px;color:var(--dim);letter-spacing:1px;margin-bottom:11px}
+  .mod-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .mod-name{font-size:12px;color:var(--muted);width:52px;flex:0 0 auto}
+  .mod-track{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .mod-fill{height:100%;border-radius:99px;background:var(--grad);width:0;transition:width 1.4s cubic-bezier(.2,.8,.3,1)}
+  .mod-val{font-size:11.5px;color:var(--dim);width:34px;text-align:right;flex:0 0 auto;font-variant-numeric:tabular-nums}
+
+  .panel-foot{
+    margin-top:20px;padding-top:16px;border-top:1px dashed rgba(255,255,255,.08);
+    display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);
+    position:relative;
+  }
+  .panel-foot .chk{color:var(--green);font-weight:700}
+
+  /* 标准对齐条 */
+  .std-bar{
+    margin-top:76px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  }
+  .std-item{
+    display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);
+    border:1px solid var(--border);background:rgba(255,255,255,.028);
+    padding:9px 16px;border-radius:11px;
+  }
+  .std-item b{color:var(--cyan);font-weight:700;font-size:12px;letter-spacing:.3px}
+
+  /* ---------- 通用区块 ---------- */
+  .sec{padding:92px 0;position:relative;scroll-margin-top:80px}
+  .sec-head{text-align:center;max-width:760px;margin:0 auto 52px}
+  .kicker{
+    display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:2.4px;
+    color:var(--cyan);margin-bottom:16px;
+  }
+  .sec-head h2{
+    font-size:clamp(25px,3.4vw,36px);font-weight:800;letter-spacing:-.7px;line-height:1.3;
+  }
+  .sec-head p{margin-top:16px;color:var(--muted);font-size:15.5px}
+
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:26px;transition:background .25s,border-color .25s,transform .25s;
+    position:relative;overflow:hidden;
+  }
+  .card:hover{background:var(--card-hover);border-color:var(--border-strong);transform:translateY(-3px)}
+
+  /* ---------- 场景 ---------- */
+  .scene-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(258px,100%),1fr));gap:16px}
+  .scene{
+    padding:22px;border-radius:15px;border:1px solid var(--border);
+    background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+    transition:.25s;position:relative;overflow:hidden;
+  }
+  .scene::after{
+    content:"";position:absolute;top:0;left:0;width:100%;height:2px;
+    background:var(--grad);opacity:0;transition:.25s;
+  }
+  .scene:hover{transform:translateY(-3px);border-color:var(--border-strong);background:rgba(255,255,255,.06)}
+  .scene:hover::after{opacity:1}
+  .scene-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px}
+  .scene-top h3{font-size:15.5px;font-weight:700;letter-spacing:-.1px}
+  .scene p{font-size:13px;color:var(--muted);line-height:1.75}
+  .scene-mods{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+  .scene-mods i{
+    font-style:normal;font-size:10.5px;padding:2px 8px;border-radius:6px;
+    color:var(--blue);background:rgba(56,189,248,.09);border:1px solid rgba(56,189,248,.2);
+  }
+  .lv{
+    font-size:10px;font-weight:700;letter-spacing:.4px;padding:3px 9px;border-radius:999px;
+    white-space:nowrap;flex:0 0 auto;
+  }
+  .lv1{color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)}
+  .lv2{color:var(--blue);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3)}
+  .lv3{color:var(--indigo);background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3)}
+
+  /* ---------- 数据链路 ---------- */
+  .flow{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:0;
+    border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+    background:rgba(255,255,255,.02);
+  }
+  .flow-step{
+    padding:26px 20px;border-right:1px solid var(--border);position:relative;
+    transition:background .25s;
+  }
+  .flow-step:last-child{border-right:none}
+  .flow-step:hover{background:rgba(56,189,248,.05)}
+  .flow-step::before{
+    content:attr(data-i);font-size:11px;font-weight:800;letter-spacing:1px;
+    color:var(--cyan);opacity:.85;display:block;margin-bottom:10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .flow-step h4{font-size:14px;font-weight:700;margin-bottom:7px}
+  .flow-step p{font-size:12.2px;color:var(--dim);line-height:1.7}
+
+  .ds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;margin-top:20px}
+  .ds-card{padding:24px;border-radius:15px;border:1px solid var(--border);background:var(--card);transition:.25s}
+  .ds-card:hover{background:var(--card-hover);border-color:var(--border-strong)}
+  .ds-card h4{font-size:15px;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+  .ds-card h4::before{content:"";width:3px;height:15px;border-radius:2px;background:var(--grad)}
+  .ds-card p{font-size:13.5px;color:var(--muted);line-height:1.8}
+  .ds-card .hl{color:var(--cyan);font-weight:600}
+
+  /* ---------- 训练底座架构图（重设计） ---------- */
+  .arch{
+    position:relative;
+    border-radius:22px;
+    border:1px solid var(--border);
+    background:
+      linear-gradient(rgba(56,189,248,.028) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(56,189,248,.028) 1px,transparent 1px),
+      linear-gradient(165deg,rgba(13,23,42,.92),rgba(7,13,26,.96));
+    background-size:44px 44px,44px 44px,100% 100%;
+    padding:24px;
+    overflow:hidden;
+  }
+  .arch::before{
+    content:"";
+    position:absolute;top:-40%;left:50%;transform:translateX(-50%);
+    width:70%;height:80%;
+    background:radial-gradient(ellipse,rgba(129,140,248,.10),transparent 70%);
+    pointer-events:none;
+  }
+
+  /* 输入输出条 */
+  .arch-io{
+    position:relative;
+    display:flex;align-items:center;gap:12px;
+    padding:13px 18px;border-radius:11px;
+    font-size:12.5px;color:var(--muted);
+    border:1px dashed rgba(56,189,248,.22);
+    background:rgba(56,189,248,.035);
+  }
+  .arch-io-out{
+    border-style:solid;
+    border-color:rgba(196,181,253,.28);
+    background:rgba(167,139,250,.06);
+    margin-bottom:14px;
+  }
+  .arch-io-in{
+    margin-top:14px;
+    border-color:rgba(34,211,238,.24);
+    background:rgba(34,211,238,.045);
+  }
+  .io-badge{
+    font-size:10px;font-weight:800;letter-spacing:1.4px;
+    padding:3px 9px;border-radius:5px;white-space:nowrap;
+    flex:0 0 auto;
+  }
+  .arch-io-out .io-badge{color:#c4b5fd;background:rgba(196,181,253,.14);border:1px solid rgba(196,181,253,.3)}
+  .arch-io-in .io-badge{color:var(--cyan);background:rgba(34,211,238,.13);border:1px solid rgba(34,211,238,.3)}
+  .io-dot{
+    width:6px;height:6px;border-radius:50%;flex:0 0 auto;
+  }
+  .arch-io-out .io-dot{background:#c4b5fd;box-shadow:0 0 8px rgba(196,181,253,.7)}
+  .arch-io-in .io-dot{background:var(--cyan);box-shadow:0 0 8px rgba(34,211,238,.7)}
+  .io-text{line-height:1.5}
+  .io-text b{color:#d3e0f0;font-weight:600;margin-right:6px}
+
+  /* 层堆叠 */
+  .arch-flow{
+    position:relative;
+    padding-left:26px;
+    display:flex;flex-direction:column;gap:7px;
+  }
+  .flow-line{
+    position:absolute;left:5px;top:16px;bottom:16px;width:2px;
+    border-radius:2px;z-index:0;
+    background:linear-gradient(0deg,#22d3ee,#38bdf8 30%,#818cf8 65%,#c4b5fd);
+    opacity:.5;
+  }
+  .flow-line::before{
+    content:"";position:absolute;left:50%;top:-1px;
+    transform:translateX(-50%);
+    border-left:4px solid transparent;
+    border-right:4px solid transparent;
+    border-bottom:7px solid #c4b5fd;
+  }
+
+  .arch-layer{
+    position:relative;z-index:1;
+    display:grid;
+    grid-template-columns:186px 1fr;
+    border-radius:13px;
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.024);
+    transition:background .25s,border-color .25s;
+  }
+  .arch-layer:hover{
+    background:rgba(255,255,255,.052);
+    border-color:var(--border-strong);
+  }
+  .arch-layer::before{
+    content:"";
+    position:absolute;left:-23px;top:50%;transform:translateY(-50%);
+    width:8px;height:8px;border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--tone);
+    box-shadow:0 0 0 3px var(--tone-soft);
+    z-index:2;
+  }
+
+  .arch-layer[data-tone="5"]{--tone:#c4b5fd;--tone-soft:rgba(196,181,253,.12)}
+  .arch-layer[data-tone="4"]{--tone:#a78bfa;--tone-soft:rgba(167,139,250,.12)}
+  .arch-layer[data-tone="3"]{--tone:#818cf8;--tone-soft:rgba(129,140,248,.12)}
+  .arch-layer[data-tone="2"]{--tone:#38bdf8;--tone-soft:rgba(56,189,248,.12)}
+  .arch-layer[data-tone="1"]{--tone:#22d3ee;--tone-soft:rgba(34,211,238,.12)}
+
+  .arch-head{
+    position:relative;
+    padding:16px 18px;
+    display:flex;align-items:center;gap:11px;
+    border-right:1px solid var(--border);
+  }
+  .arch-head::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--tone);opacity:.85;
+  }
+  .arch-code{
+    font-size:11px;font-weight:800;letter-spacing:.8px;
+    color:var(--tone);
+    background:var(--tone-soft);
+    border:1px solid var(--tone-soft);
+    padding:3px 8px;border-radius:6px;
+    flex:0 0 auto;
+  }
+  .arch-name h4{font-size:13.5px;font-weight:700;letter-spacing:-.1px;line-height:1.3}
+  .arch-name span{display:block;font-size:9px;letter-spacing:1.3px;color:var(--dim);margin-top:2px}
+
+  .arch-mods{display:grid;grid-template-columns:repeat(4,1fr)}
+  .am{
+    padding:14px 14px;
+    border-right:1px dashed rgba(255,255,255,.055);
+    display:flex;flex-direction:column;gap:3px;
+    transition:background .2s;
+  }
+  .am:last-child{border-right:none}
+  .am:hover{background:rgba(255,255,255,.022)}
+  .am b{
+    font-size:12px;font-weight:600;color:#d3e0f0;
+    display:flex;align-items:center;gap:6px;line-height:1.4;
+  }
+  .am b::before{
+    content:"";width:4px;height:4px;border-radius:50%;
+    background:var(--tone);opacity:.85;flex:0 0 auto;
+  }
+  .am span{font-size:11px;color:var(--dim);line-height:1.55}
+
+  /* ---------- CTA ---------- */
+  .cta-sec{padding:0 0 96px}
+  .cta{
+    position:relative;border-radius:26px;overflow:hidden;
+    border:1px solid rgba(56,189,248,.22);
+    background:linear-gradient(135deg,rgba(34,211,238,.13),rgba(129,140,248,.11) 55%,rgba(255,255,255,.02));
+    padding:62px 48px;text-align:center;
+  }
+  .cta::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(56,189,248,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(56,189,248,.05) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(ellipse 70% 90% at 50% 50%,#000,transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 50%,#000,transparent 75%);
+  }
+  .cta h2{font-size:clamp(24px,3.2vw,34px);font-weight:800;letter-spacing:-.6px;position:relative}
+  .cta p{margin-top:14px;color:var(--muted);font-size:15.5px;position:relative;max-width:620px;margin-left:auto;margin-right:auto}
+  .cta-btns{display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap;position:relative}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--border);padding:44px 0 56px;
+  }
+  .foot-inner{
+    display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;align-items:flex-start;
+  }
+  .foot-brand{font-weight:800;font-size:15px;margin-bottom:10px}
+  .foot-brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .foot-note{font-size:12.5px;color:var(--dim);max-width:420px;line-height:1.8}
+  .foot-links{display:flex;gap:34px;flex-wrap:wrap}
+  .foot-col h5{font-size:12px;color:var(--text);font-weight:700;letter-spacing:.5px;margin-bottom:12px}
+  .foot-col a{display:block;font-size:12.5px;color:var(--dim);margin-bottom:9px;transition:.2s}
+  .foot-col a:hover{color:var(--cyan)}
+
+  /* 滚动淡入 */
+  .rv{opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease}
+  .rv.in{opacity:1;transform:none}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:1020px){
+    .hero-inner{grid-template-columns:1fr;gap:46px}
+    .hero-lead{max-width:none}
+    .flow{grid-template-columns:repeat(3,1fr)}
+    .flow-step:nth-child(3n){border-right:none}
+    .flow-step:nth-child(-n+3){border-bottom:1px solid var(--border)}
+  }
+  @media (max-width:900px){
+    .arch-layer{grid-template-columns:1fr}
+    .arch-head{border-right:none;border-bottom:1px solid var(--border);padding:13px 16px}
+    .arch-mods{grid-template-columns:repeat(2,1fr)}
+    .am:nth-child(2){border-right:none}
+    .am:nth-child(1),.am:nth-child(2){border-bottom:1px dashed rgba(255,255,255,.055)}
+  }
+  @media (max-width:760px){
+    .nav-menu{display:none}
+    .nav-inner{gap:14px;height:60px}
+    .hero{padding:118px 0 66px}
+    .sec{padding:70px 0}
+    .flow{grid-template-columns:1fr 1fr}
+    .flow-step:nth-child(3n){border-right:1px solid var(--border)}
+    .flow-step:nth-child(2n){border-right:none}
+    .flow-step{border-bottom:1px solid var(--border)}
+    .flow-step:last-child,.flow-step:nth-last-child(2){border-bottom:none}
+    .cta{padding:44px 22px}
+    .btn{padding:8px 15px;font-size:13px}
+    .btn-lg{padding:12px 24px}
+    .metrics{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){
+    .arch{padding:16px}
+    .arch-flow{padding-left:22px}
+    .flow-line{left:4px}
+    .arch-layer::before{left:-20px;width:7px;height:7px}
+    .arch-mods{grid-template-columns:1fr}
+    .am{border-right:none;border-bottom:1px dashed rgba(255,255,255,.055)}
+    .am:last-child{border-bottom:none}
+    .arch-io{font-size:11.5px;padding:11px 13px;flex-wrap:wrap}
+  }
+  @media (max-width:460px){
+    .container{padding:0 18px}
+    .nav-inner{padding:0 18px}
+    .flow{grid-template-columns:1fr}
+    .flow-step{border-right:none !important}
+    .hero-cta{flex-direction:column;align-items:stretch}
+    .hero-cta .btn{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== 导航 ========== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#04121c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h3l2-7 4 14 2.5-7H21"/>
+        </svg>
+      </span>
+      <span class="logo-text">BCI DataHub<small>高质量数据平台</small></span>
+    </a>
+    <div class="nav-menu">
+      <a href="#scenes">临床场景</a>
+      <a href="#pipeline">数据治理</a>
+      <a href="#foundation">训练底座</a>
+      <a href="#standards">标准对齐</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#pipeline" class="btn btn-ghost">平台架构</a>
+      <a href="#cta" class="btn btn-primary">申请接入</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== Hero ========== -->
+<header id="top" class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="container">
+    <div class="hero-inner">
+
+      <!-- 左：主张 -->
+      <div class="rv">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          对齐 GB/T 47023 · GB/T 47127 · 国家高质量数据集标准
+        </div>
+        <h1>让每一段神经信号<br><span class="grad">成为可训练的数据资产</span></h1>
+        <p class="hero-lead">
+          面向脑机接口的临床级数据基础设施。以<strong>多中心真实世界采集</strong>为源头，
+          经统一治理、意图标注与合规确权，构建覆盖 <strong>10 类神经疾病、6 种数据模态</strong>的高质量数据集，
+          直接支撑基础模型训练与多中心临床验证。
+        </p>
+        <div class="hero-cta">
+          <a href="#cta" class="btn btn-primary btn-lg">申请平台接入</a>
+          <a href="#pipeline" class="btn btn-ghost btn-lg">查看数据链路</a>
+        </div>
+        <div class="hero-tags">
+          <span>采集—治理—标注—训练 全链路</span>
+          <span>联邦学习 · 数据可用不可见</span>
+          <span>数据集版本管理与漂移监测</span>
+        </div>
+      </div>
+
+      <!-- 右：数据资产面板 -->
+      <div class="rv">
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="panel-head">
+              <h4>数据资产总览</h4>
+              <span class="live"><span class="dot"></span>实时同步</span>
+            </div>
+
+            <div class="big-num">12.8<small>PB</small></div>
+            <div style="font-size:12.5px;color:var(--dim);margin-top:2px">临床信号累计存储</div>
+
+            <div class="wave-box">
+              <svg viewBox="0 0 600 70" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#22d3ee" stop-opacity=".15"/>
+                    <stop offset="35%" stop-color="#38bdf8"/>
+                    <stop offset="70%" stop-color="#818cf8"/>
+                    <stop offset="100%" stop-color="#22d3ee" stop-opacity=".15"/>
+                  </linearGradient>
+                </defs>
+                <path class="wave-line"
+                  d="M0,35 L40,35 L55,35 L65,14 L76,58 L88,24 L98,35 L150,35
+                     L162,35 L172,8 L184,64 L196,20 L208,35 L262,35
+                     L274,35 L284,16 L296,56 L308,26 L320,35 L372,35
+                     L384,35 L394,10 L406,62 L418,22 L430,35 L484,35
+                     L496,35 L506,15 L518,57 L530,25 L542,35 L600,35"/>
+              </svg>
+            </div>
+
+            <div class="metrics">
+              <div class="metric"><b>42,180</b><span>信号小时数</span></div>
+              <div class="metric"><b>10 类</b><span>覆盖病种</span></div>
+              <div class="metric"><b>6 种</b><span>数据模态</span></div>
+            </div>
+
+            <div class="mods">
+              <div class="mods-title">模态分布</div>
+              <div class="mod-row">
+                <span class="mod-name">EEG</span>
+                <span class="mod-track"><span class="mod-fill" data-w="86"></span></span>
+                <span class="mod-val">48%</span>
+              </div>
+              <div class="mod-row">
+                <span class="mod-name">fNIRS</span>
+                <span class="mod-track"><span class="mod-fill" data-w="46"></span></span>
+                <span class="mod-val">22%</span>
+              </div>
+              <div class="mod-row">
+                <span class="mod-name">ECoG</span>
+                <span class="mod-track"><span class="mod-fill" data-w="32"></span></span>
+                <span class="mod-val">16%</span>
+              </div>
+              <div class="mod-row">
+                <span class="mod-name">EMG/EOG</span>
+                <span class="mod-track"><span class="mod-fill" data-w="26"></span></span>
+                <span class="mod-val">14%</span>
+              </div>
+            </div>
+
+            <div class="panel-foot">
+              <span class="chk">✓</span>
+              已通过 GB/T 47127 多模态格式校验
+              <span style="margin-left:auto;color:var(--cyan)">v2.4.1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 标准对齐条 -->
+    <div class="std-bar rv">
+      <div class="std-item"><b>GB/T 47023</b>脑机接口参考架构</div>
+      <div class="std-item"><b>GB/T 47127</b>多模态数据格式</div>
+      <div class="std-item"><b>AI + BCI</b>医疗器械全流程质量标尺</div>
+      <div class="std-item"><b>BIDS</b>神经影像数据组织规范</div>
+    </div>
+  </div>
+</header>
+
+<!-- ========== 01 临床场景 ========== -->
+<section id="scenes" class="sec">
+  <div class="container">
+    <div class="sec-head rv">
+      <div class="kicker">临 床 场 景</div>
+      <h2>按病种组织数据集，按证据成熟度排序优先级</h2>
+      <p>对齐国家脑机接口高质量数据集项目的病种设计，覆盖从规模化落地到早期探索的完整谱系，每个病种均标注推荐模态与当前证据等级。</p>
+    </div>
+
+    <div class="scene-grid">
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>脑卒中康复</h3><span class="lv lv1">规模化</span></div>
+        <p>上肢、手部及下肢运动障碍康复训练，BCI 结合外骨骼与功能性电刺激，构成数据集需求的最大单一来源。</p>
+        <div class="scene-mods"><i>EEG</i><i>fNIRS</i><i>EMG</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>脊髓损伤</h3><span class="lv lv1">规模化</span></div>
+        <p>高位截瘫患者的功能替代与康复训练，覆盖抓取、饮水等基本动作的意图解码数据。</p>
+        <div class="scene-mods"><i>ECoG</i><i>EEG</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>帕金森病</h3><span class="lv lv1">规模化</span></div>
+        <p>aDBS 闭环调控的实时神经信号、刺激参数与运动症状评分，用于自适应刺激策略建模。</p>
+        <div class="scene-mods"><i>LFP</i><i>EEG</i><i>IMU</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>癫痫</h3><span class="lv lv1">规模化</span></div>
+        <p>发作前异常脑电探测与闭环阻断，涵盖长程监测、发作标注与刺激响应数据。</p>
+        <div class="scene-mods"><i>iEEG</i><i>EEG</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>意识障碍</h3><span class="lv lv2">早期可行</span></div>
+        <p>慢性意识障碍的意识评估与干预唤醒，包含隐蔽意识探测范式与行为改善随访。</p>
+        <div class="scene-mods"><i>EEG</i><i>fNIRS</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>ALS / 渐冻症</h3><span class="lv lv2">早期可行</span></div>
+        <p>晚期运动通路丧失后的沟通替代，覆盖尝试性言语、拼写意图的皮质信号解码。</p>
+        <div class="scene-mods"><i>ECoG</i><i>Spike</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>难治性抑郁</h3><span class="lv lv2">早期可行</span></div>
+        <p>闭环侵入式干预的概念验证数据，以及神经反馈范式的纵向情绪状态记录。</p>
+        <div class="scene-mods"><i>LFP</i><i>EEG</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>阿尔茨海默病</h3><span class="lv lv3">早期探索</span></div>
+        <p>基于 EEG / fNIRS 生物标志物的早期诊断分类，以及神经反馈康复的纵向随访。</p>
+        <div class="scene-mods"><i>EEG</i><i>fNIRS</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>物质成瘾 / OCD</h3><span class="lv lv3">早期探索</span></div>
+        <p>神经调控与 DBS 干预的机制研究与疗效评估数据，涵盖冲动控制相关范式。</p>
+        <div class="scene-mods"><i>LFP</i><i>EEG</i></div>
+      </div>
+
+      <div class="scene rv">
+        <div class="scene-top"><h3>儿童神经发育</h3><span class="lv lv3">早期探索</span></div>
+        <p>脑性瘫痪、ADHD、孤独症谱系障碍的评估与干预，强调儿童脑可塑性与纵向追踪。</p>
+        <div class="scene-mods"><i>EEG</i><i>fNIRS</i><i>眼动</i></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== 02 数据链路 ========== -->
+<section id="pipeline" class="sec">
+  <div class="container">
+    <div class="sec-head rv">
+      <div class="kicker">数 据 治 理</div>
+      <h2>从多中心采集到可流通资产的全链路</h2>
+      <p>不是把医院数据搬到一起，而是让每一份数据在采集、清洗、标注、标准化、确权、发布的每个环节都受控、可追溯、可复用。</p>
+    </div>
+
+    <div class="flow rv">
+      <div class="flow-step" data-i="01">
+        <h4>多模态采集</h4>
+        <p>统一采集规范与设备接入协议，覆盖 EEG、fNIRS、ECoG、LFP、EMG 等多源信号。</p>
+      </div>
+      <div class="flow-step" data-i="02">
+        <h4>清洗与质控</h4>
+        <p>伪迹去除、坏道修复、阻抗与信噪比阈值校验，自动生成质量报告。</p>
+      </div>
+      <div class="flow-step" data-i="03">
+        <h4>意图解码标注</h4>
+        <p>临床专家与算法团队协同校准，产出标签可靠性评估与一致性指标。</p>
+      </div>
+      <div class="flow-step" data-i="04">
+        <h4>标准化治理</h4>
+        <p>按 GB/T 47127 转换为“数据集—被试者—会话—模态”四级结构。</p>
+      </div>
+      <div class="flow-step" data-i="05">
+        <h4>合规确权</h4>
+        <p>数据知识产权登记、分级授权与脱敏策略，明确权属与使用边界。</p>
+      </div>
+      <div class="flow-step" data-i="06">
+        <h4>发布与流通</h4>
+        <p>数据集版本发布、联邦共享与 API 调用，支撑训练与临床验证。</p>
+      </div>
+    </div>
+
+    <div class="ds-grid">
+      <div class="ds-card rv">
+        <h4>临床数据规模化汇聚</h4>
+        <p>通过联盟机制接入多中心医院，以统一标准汇聚跨机构、多病种的真实世界数据，
+          <span class="hl">破解单一医院样本量不足与病种单一的结构性瓶颈</span>。</p>
+      </div>
+      <div class="ds-card rv">
+        <h4>行业临床场景数据集构建</h4>
+        <p>按病种、按范式、按模态组织数据集，支持运动想象、P300、SSVEP、闭环调控等多类任务的
+          <span class="hl">定制化数据集构建与发布</span>。</p>
+      </div>
+      <div class="ds-card rv">
+        <h4>模型转化与验证</h4>
+        <p>数据集直接对接模型训练、多中心临床验证与产业转化，形成
+          <span class="hl">“数据—模型—验证—产品”</span>的可追溯转化链路。</p>
+      </div>
+      <div class="ds-card rv">
+        <h4>动态数据资产治理</h4>
+        <p>面向长期植入与纵向随访，提供<span class="hl">版本管理、漂移监测与再标注机制</span>，
+          使数据集成为持续演化的动态基础设施而非静态存档。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 03 训练底座（重设计架构图） ========== -->
+<section id="foundation" class="sec">
+  <div class="container">
+    <div class="sec-head rv">
+      <div class="kicker">大 模 型 训 练 底 座</div>
+      <h2>五层能力，支撑神经信号基础模型的全周期</h2>
+      <p>从算力底座到模型服务，五层能力逐级向上承载数据价值，每一层都定义清晰的模块边界与标准接口。</p>
+    </div>
+
+    <div class="arch rv">
+
+      <!-- 顶部输出 -->
+      <div class="arch-io arch-io-out">
+        <span class="io-dot"></span>
+        <span class="io-badge">输出</span>
+        <span class="io-text"><b>可调用的神经信号基础模型</b>标准化推理接口 · 模型授权包 · 边缘部署方案</span>
+      </div>
+
+      <!-- 层堆叠 -->
+      <div class="arch-flow">
+        <div class="flow-line"></div>
+
+        <div class="arch-layer" data-tone="5">
+          <div class="arch-head">
+            <span class="arch-code">L5</span>
+            <div class="arch-name">
+              <h4>模型服务层</h4>
+              <span>MODEL SERVING</span>
+            </div>
+          </div>
+          <div class="arch-mods">
+            <div class="am"><b>标准化 API</b><span>推理调用与鉴权</span></div>
+            <div class="am"><b>模型授权</b><span>托管与分发</span></div>
+            <div class="am"><b>边缘部署</b><span>低延迟推理</span></div>
+            <div class="am"><b>临床验证</b><span>多中心对接</span></div>
+          </div>
+        </div>
+
+        <div class="arch-layer" data-tone="4">
+          <div class="arch-head">
+            <span class="arch-code">L4</span>
+            <div class="arch-name">
+              <h4>评估基准层</h4>
+              <span>BENCHMARK</span>
+            </div>
+          </div>
+          <div class="arch-mods">
+            <div class="am"><b>MOABB 基准</b><span>范式统一测试</span></div>
+            <div class="am"><b>跨机构泛化</b><span>外部验证</span></div>
+            <div class="am"><b>标签审计</b><span>一致性校准</span></div>
+            <div class="am"><b>实验追踪</b><span>可复现记录</span></div>
+          </div>
+        </div>
+
+        <div class="arch-layer" data-tone="3">
+          <div class="arch-head">
+            <span class="arch-code">L3</span>
+            <div class="arch-name">
+              <h4>预训练与微调层</h4>
+              <span>PRETRAIN &amp; FINETUNE</span>
+            </div>
+          </div>
+          <div class="arch-mods">
+            <div class="am"><b>EEG 基础模型</b><span>自监督预训练</span></div>
+            <div class="am"><b>跨被试迁移</b><span>少样本适配</span></div>
+            <div class="am"><b>多模态融合</b><span>联合建模</span></div>
+            <div class="am"><b>参数高效微调</b><span>PEFT 策略</span></div>
+          </div>
+        </div>
+
+        <div class="arch-layer" data-tone="2">
+          <div class="arch-head">
+            <span class="arch-code">L2</span>
+            <div class="arch-name">
+              <h4>数据供给层</h4>
+              <span>DATA SUPPLY</span>
+            </div>
+          </div>
+          <div class="arch-mods">
+            <div class="am"><b>标准化数据集</b><span>按需加载</span></div>
+            <div class="am"><b>PyTorch 原生</b><span>格式转换</span></div>
+            <div class="am"><b>联邦学习</b><span>数据不出域</span></div>
+            <div class="am"><b>差分隐私</b><span>训练保护</span></div>
+          </div>
+        </div>
+
+        <div class="arch-layer" data-tone="1">
+          <div class="arch-head">
+            <span class="arch-code">L1</span>
+            <div class="arch-name">
+              <h4>算力调度层</h4>
+              <span>COMPUTE SCHEDULING</span>
+            </div>
+          </div>
+          <div class="arch-mods">
+            <div class="am"><b>GPU 集群</b><span>弹性调度</span></div>
+            <div class="am"><b>端边云协同</b><span>分级推理</span></div>
+            <div class="am"><b>混合精度</b><span>训练加速</span></div>
+            <div class="am"><b>多租户隔离</b><span>资源配额</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部输入 -->
+      <div class="arch-io arch-io-in">
+        <span class="io-dot"></span>
+        <span class="io-badge">输入</span>
+        <span class="io-text"><b>多模态神经信号与标准化数据集</b>EEG / fNIRS / ECoG / LFP / EMG / 眼动</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== 标准对齐 ========== -->
+<section id="standards" class="sec" style="padding-top:20px">
+  <div class="container">
+    <div class="sec-head rv" style="margin-bottom:38px">
+      <div class="kicker">标 准 对 齐</div>
+      <h2>从源头到终端的全链条受控</h2>
+    </div>
+    <div class="std-bar rv" style="margin-top:0">
+      <div class="std-item"><b>采集</b>统一设备接入与范式规范</div>
+      <div class="std-item"><b>处理</b>清洗、去伪迹与质量分级</div>
+      <div class="std-item"><b>标注</b>意图标签与一致性校准</div>
+      <div class="std-item"><b>存储</b>四级目录与版本管理</div>
+      <div class="std-item"><b>访问</b>分级授权与审计留痕</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section id="cta" class="cta-sec">
+  <div class="container">
+    <div class="cta rv">
+      <h2>加入国家脑机接口高质量数据集联盟</h2>
+      <p>面向医院、高校与产业伙伴开放接入。共享标准化数据资产，参与多中心临床验证，共建自主可控的神经数据底座。</p>
+      <div class="cta-btns">
+        <a href="#top" class="btn btn-primary btn-lg">申请平台接入</a>
+        <a href="#pipeline" class="btn btn-ghost btn-lg">获取技术白皮书</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Footer ========== -->
+<footer>
+  <div class="container">
+    <div class="foot-inner">
+      <div>
+        <div class="foot-brand">BCI <span>DataHub</span></div>
+        <div class="foot-note">
+          脑机接口高质量数据平台 · 面向临床级神经信号的采集、治理、数据集构建与模型训练底座。
+          资料用于产品设计演示，不构成医疗或投资建议。
+        </div>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h5>平台</h5>
+          <a href="#scenes">临床场景</a>
+          <a href="#pipeline">数据治理</a>
+          <a href="#foundation">训练底座</a>
+        </div>
+        <div class="foot-col">
+          <h5>标准</h5>
+          <a href="#standards">GB/T 47023</a>
+          <a href="#standards">GB/T 47127</a>
+          <a href="#standards">AI + BCI 质量标尺</a>
+        </div>
+        <div class="foot-col">
+          <h5>合作</h5>
+          <a href="#cta">联盟接入</a>
+          <a href="#cta">技术白皮书</a>
+          <a href="#top">返回顶部</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* 模态条动画 */
+  const fills = document.querySelectorAll('.mod-fill');
+  const fillIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 180);
+        fillIO.unobserve(el);
+      }
+    });
+  }, { threshold: .3 });
+  fills.forEach(f => fillIO.observe(f));
+
+  /* 滚动淡入 */
+  const rvIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        rvIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: .1 });
+  document.querySelectorAll('.rv').forEach(el => rvIO.observe(el));
+
+  /* 导航高亮 */
+  const secs = [...document.querySelectorAll('section[id]')];
+  const links = [...document.querySelectorAll('.nav-menu a')];
+  const navIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-42% 0px -52% 0px' });
+  secs.forEach(s => navIO.observe(s));
+</script>
+
+</body>
+</html>

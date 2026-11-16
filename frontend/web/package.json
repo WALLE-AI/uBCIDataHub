@@ -1,0 +1,17 @@
+{
+  "name": "bci-datahub-portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-portal.mjs",
+    "start": "node scripts/serve.mjs",
+    "test": "node scripts/verify-data.mjs",
+    "test:ui": "node scripts/verify-ui.mjs",
+    "test:standards": "node scripts/verify-standards.mjs",
+    "test:capabilities": "node scripts/verify-capabilities.mjs",
+    "test:samples": "node scripts/verify-samples.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}

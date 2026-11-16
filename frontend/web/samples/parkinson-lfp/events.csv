@@ -1,0 +1,3 @@
+sample_kind,onset_s,duration_s,event_code,label
+synthetic,0,6,baseline,基线示意
+synthetic,6,6,stimulation_condition,刺激条件示意

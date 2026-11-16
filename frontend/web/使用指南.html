@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="BCI DataHub 神经信号数据资源、质量说明与基础模型技术架构交互原型"><title>使用指南 · BCI DataHub</title><link rel="stylesheet" href="assets/portal.css"><link rel="stylesheet" href="assets/capabilities.css"></head><body data-page="docs"><a class="skip" href="#main">跳到主要内容</a><header class="nav"><div class="wrap nav-inner"><a class="brand" href="门户设计.html" aria-label="BCI DataHub 首页"><span class="brand-mark" aria-hidden="true">∿</span>BCI <small>DataHub</small></a><nav class="nav-links" aria-label="主导航"><a href="数据资源.html">数据资源</a><a href="门户设计.html#scenes">临床场景</a><a href="门户设计.html#foundation">平台能力</a><a href="门户设计.html#standards">标准与白皮书</a><a href="门户设计.html#cooperate">合作接入</a></nav><button class="btn btn-small nav-apply" data-apply="机构接入">申请接入 ↗</button><button class="btn btn-small menu-toggle" aria-haspopup="dialog" data-menu>菜单 ☰</button></div></header><main id="main"><article class="document wrap"><div class="breadcrumbs"><a href="门户设计.html">首页</a> / 使用指南</div><span class="eyebrow">DOCUMENTATION</span><h1>从发现数据，到开始研究</h1><p style="margin-top:20px">BCI DataHub 门户原型的资源组织与接入说明。</p><div class="demo-note">本文说明目标工作流，不代表真实数据、SDK、模型服务或审批服务已开放。</div><h2 id="structure">01 / 数据组织</h2><p>目录按数据集、受试者、会话与模态组织。每一版本应关联采集说明、标签协议、质量报告和使用条件。具体格式根据数据模态及适用规范确定。</p><pre>dataset-version/
+  dataset_description.json
+  participants.tsv
+  sub-001/
+    ses-001/
+      eeg/
+      events.tsv
+  quality/
+  CHANGELOG.md</pre><p>以上为结构示意，不宣称覆盖全部 BIDS 要求。实际接入需按选定规范及版本校验。</p><h2 id="evaluation">02 / 可复现研究</h2><ul><li>固定数据集版本，并记录纳入与排除规则。</li><li>按研究问题选择跨被试或跨中心划分，避免同一受试者相关片段跨训练与测试集泄漏。</li><li>记录预处理、标签映射、随机种子、模型版本和评价指标。</li><li>基准工具须确认对当前模态与任务的支持范围。</li></ul><pre># 研究记录示例，非可调用 SDK
+dataset: stroke-mi
+version: 5
+split: subject-independent
+preprocessing: recorded-in-protocol
+seed: 42
+metrics: defined-per-task</pre><h2 id="onboarding">03 / 机构接入</h2><p>准备机构类型、数据概况、模态、采集协议、可共享范围与合作意向。首轮沟通仅需元数据概述，无需在门户申请中上传原始信号或受试者信息。</p><h3>访问方式</h3><ul><li>开放资源：由有效资源链接与许可说明指导使用。</li><li>申请访问：用途和范围审核后，获得对应权限。</li><li>受控计算：在授权环境中执行任务，按约定导出结果。</li><li>暂未开放：先查看开放说明或登记需求。</li></ul><button class="btn btn-primary" data-apply="机构接入">体验接入申请 →</button><h2>04 / 技术架构与能力边界</h2><p>平台目标架构包含算力调度、数据供给、预训练与微调、评估基准和模型服务五层。权限、质量、版本、监测及审计贯穿各层。</p><a class="btn" href="assets/神经信号基础模型-五层技术架构.svg" download>下载五层技术架构 SVG ↓</a><h2>05 / 原型资源说明</h2><p>目录收录真实外部研究数据，详情中的“前往来源获取”可打开原始发布页；本门户尚未托管信号文件。申请不会提交到服务器。正式上线前需要接入目录、身份、授权、质量报告与审批服务，并验证其失败恢复行为。</p></article></main><footer><div class="wrap footer-inner"><div><a class="brand" href="门户设计.html">BCI <small>DataHub</small></a><p style="margin-top:10px">连接临床场景与神经数据价值 · 产品交互原型</p></div><div class="footer-links"><a href="使用指南.html">使用指南</a><a href="脑际接口高质量数据产品调研.html">产品调研</a><a href="assets/神经信号基础模型-五层技术架构.svg" download>下载技术架构图</a><span>© 2026 BCI DataHub</span></div></div></footer><noscript><div class="noscript">正文与技术架构图可直接阅读。搜索、筛选与申请演示需要启用 JavaScript。</div></noscript><script type="module" src="assets/bootstrap.js"></script></body></html>

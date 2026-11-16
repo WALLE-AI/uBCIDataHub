@@ -1,0 +1,6 @@
+sample_kind,onset_s,duration_s,event_code,label
+synthetic,1,0.1,non_target,非目标刺激示意
+synthetic,3,0.1,target,目标刺激示意
+synthetic,5,0.1,non_target,非目标刺激示意
+synthetic,7,0.1,target,目标刺激示意
+synthetic,9,0.1,non_target,非目标刺激示意

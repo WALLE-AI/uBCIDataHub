@@ -1,0 +1,3 @@
+sample_kind,onset_s,duration_s,event_code,label
+synthetic,0,6,rest,静息条件示意
+synthetic,6,6,arithmetic,心算条件示意

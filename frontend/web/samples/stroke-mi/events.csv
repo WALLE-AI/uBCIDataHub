@@ -1,0 +1,3 @@
+sample_kind,onset_s,duration_s,event_code,label
+synthetic,2,3,left_hand_imagery,左手想象示意
+synthetic,7,3,right_hand_imagery,右手想象示意
